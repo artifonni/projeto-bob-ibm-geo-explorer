@@ -14,6 +14,15 @@ spring:
     interactive:
       # Spring Shell desligado — System.in/System.out pertencem ao MCP
       enabled: false
+  ai:
+    mcp:
+      server:
+        # Reativa o MCP neste profile (desabilitado por padrão no application.yml)
+        enabled: true
+        name: geo-explorer-mcp
+        version: "1.0.0"
+        # type: SYNC é o padrão — não é necessário declarar explicitamente
+        # transport STDIO é ativado por StdioServerTransportProvider (bean padrão)
 
 logging:
   level:
@@ -22,13 +31,3 @@ logging:
   # redireciona todo output do ConsoleAppender para System.err
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
-
-spring:
-  ai:
-    mcp:
-      server:
-        enabled: true
-        name: geo-explorer-mcp
-        version: "1.0.0"
-        # type: SYNC é o padrão — não é necessário declarar explicitamente
-        # transport STDIO é ativado por StdioServerTransportProvider (bean padrão)

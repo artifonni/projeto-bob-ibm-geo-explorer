@@ -15,6 +15,13 @@ spring:
   h2:
     console:
       enabled: false
+  ai:
+    mcp:
+      server:
+        # MCP desabilitado por padrão — evita que o StdioServerTransportProvider
+        # sequestre System.in nos testes da CLI e no profile cli em geral.
+        # Reativado explicitamente apenas no application-mcp.yml.
+        enabled: false
 
 server:
   port: 8080
