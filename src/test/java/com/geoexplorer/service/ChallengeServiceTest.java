@@ -1,0 +1,101 @@
+package com.geoexplorer.service;
+
+import com.geoexplorer.domain.model.Challenge;
+import com.geoexplorer.domain.model.Level;
+import com.geoexplorer.domain.model.Trail;
+import com.geoexplorer.domain.repository.ChallengeRepository;
+import com.geoexplorer.domain.repository.TrailRepository;
+import com.geoexplorer.exception.ResourceNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class ChallengeServiceTest {
+
+    @Mock
+    private TrailRepository trailRepository;
+
+    @Mock
+    private ChallengeRepository challengeRepository;
+
+    @InjectMocks
+    private ChallengeService challengeService;
+
+    private Trail pythonTrail;
+
+    @BeforeEach
+    void setUp() {
+        pythonTrail = new Trail("python", "Trilha de Python", Level.BEGINNER);
+    }
+
+    @Test
+    void getChallenge_deveRetornarDesafio_quandoExistentes() {
+        Challenge ch = new Challenge("FizzBuzz", "Implemente FizzBuzz.", Level.BEGINNER, pythonTrail);
+
+        when(trailRepository.findByTechnologyIgnoreCase("python"))
+                .thenReturn(Optional.of(pythonTrail));
+        when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.BEGINNER))
+                .thenReturn(List.of(ch));
+
+        Challenge result = challengeService.getChallenge("python", "BEGINNER");
+
+        assertThat(result.getTitle()).isEqualTo("FizzBuzz");
+    }
+
+    @Test
+    void getChallenge_deveAceitarLevelEmMinusculo() {
+        Challenge ch = new Challenge("Decorador", "Implemente decorador.", Level.INTERMEDIATE, pythonTrail);
+
+        when(trailRepository.findByTechnologyIgnoreCase("python"))
+                .thenReturn(Optional.of(pythonTrail));
+        when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.INTERMEDIATE))
+                .thenReturn(List.of(ch));
+
+        Challenge result = challengeService.getChallenge("python", "intermediate");
+
+        assertThat(result.getLevel()).isEqualTo(Level.INTERMEDIATE);
+    }
+
+    @Test
+    void getChallenge_deveLancarException_quandoTecnologiaNaoExiste() {
+        when(trailRepository.findByTechnologyIgnoreCase("ruby"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> challengeService.getChallenge("ruby", "BEGINNER"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("ruby");
+    }
+
+    @Test
+    void getChallenge_deveLancarException_quandoNenhumDesafioNoNivel() {
+        when(trailRepository.findByTechnologyIgnoreCase("python"))
+                .thenReturn(Optional.of(pythonTrail));
+        when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.ADVANCED))
+                .thenReturn(List.of());
+
+        assertThatThrownBy(() -> challengeService.getChallenge("python", "ADVANCED"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("ADVANCED");
+    }
+
+    @Test
+    void getChallenge_deveLancarException_quandoNivelInvalido() {
+        when(trailRepository.findByTechnologyIgnoreCase("python"))
+                .thenReturn(Optional.of(pythonTrail));
+
+        assertThatThrownBy(() -> challengeService.getChallenge("python", "EXPERT"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("EXPERT");
+    }
+}
