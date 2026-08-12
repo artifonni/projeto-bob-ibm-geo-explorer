@@ -15,6 +15,15 @@ spring:
   h2:
     console:
       enabled: false
+  shell:
+    noninteractive:
+      # Desabilita o NonInteractiveShellRunner do Spring Shell. Ele pega todos os
+      # argumentos crus de `java -jar` (ex.: --spring.profiles.active=cli) e tenta
+      # executá-los como comando do shell, abortando a inicialização com
+      # "CommandNotFound: No command found for '--spring.profiles.active=cli'".
+      # Com isto desabilitado, o InteractiveShellRunner (profile cli) assume
+      # normalmente e o profile mcp roda o transporte STDIO sem interferência.
+      enabled: false
   ai:
     mcp:
       server:
