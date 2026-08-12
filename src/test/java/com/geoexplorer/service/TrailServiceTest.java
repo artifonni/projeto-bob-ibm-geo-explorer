@@ -1,9 +1,10 @@
 package com.geoexplorer.service;
 
+import com.geoexplorer.domain.dto.ModuleDTO;
+import com.geoexplorer.domain.dto.TrailDTO;
 import com.geoexplorer.domain.model.Level;
 import com.geoexplorer.domain.model.Module;
 import com.geoexplorer.domain.model.Trail;
-import com.geoexplorer.domain.repository.ModuleRepository;
 import com.geoexplorer.domain.repository.TrailRepository;
 import com.geoexplorer.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,9 +28,6 @@ class TrailServiceTest {
     @Mock
     private TrailRepository trailRepository;
 
-    @Mock
-    private ModuleRepository moduleRepository;
-
     @InjectMocks
     private TrailService trailService;
 
@@ -37,23 +36,22 @@ class TrailServiceTest {
     @BeforeEach
     void setUp() {
         javaTrail = new Trail("java", "Trilha de Java", Level.BEGINNER);
+        Module m1 = new Module("Intro", "Conteúdo 1", 1, javaTrail);
+        Module m2 = new Module("OO", "Conteúdo 2", 2, javaTrail);
+        javaTrail.getModules().addAll(List.of(m1, m2));
     }
 
     @Test
-    void getTrail_deveRetornarModulosOrdenados_quandoTecnologiaExiste() {
-        Module m1 = new Module("Intro", "Conteúdo 1", 1, javaTrail);
-        Module m2 = new Module("OO", "Conteúdo 2", 2, javaTrail);
-
+    void getTrail_deveRetornarDTOComModulosOrdenados_quandoTecnologiaExiste() {
         when(trailRepository.findByTechnologyIgnoreCase("java"))
                 .thenReturn(Optional.of(javaTrail));
-        when(moduleRepository.findByTrailOrderByModuleOrderAsc(javaTrail))
-                .thenReturn(List.of(m1, m2));
 
-        List<Module> result = trailService.getTrail("java");
+        TrailDTO result = trailService.getTrail("java");
 
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).getTitle()).isEqualTo("Intro");
-        assertThat(result.get(1).getTitle()).isEqualTo("OO");
+        assertThat(result.technology()).isEqualTo("java");
+        assertThat(result.modules()).hasSize(2);
+        assertThat(result.modules().get(0).title()).isEqualTo("Intro");
+        assertThat(result.modules().get(1).title()).isEqualTo("OO");
     }
 
     @Test
@@ -67,12 +65,12 @@ class TrailServiceTest {
     }
 
     @Test
-    void getTrail_deveSerCaseInsensitive() {
+    void getTrail_deveRetornarListaVazia_quandoSemModulos() {
+        Trail emptyTrail = new Trail("JAVA", "desc", Level.BEGINNER);
         when(trailRepository.findByTechnologyIgnoreCase("JAVA"))
-                .thenReturn(Optional.of(javaTrail));
-        when(moduleRepository.findByTrailOrderByModuleOrderAsc(javaTrail))
-                .thenReturn(List.of());
+                .thenReturn(Optional.of(emptyTrail));
 
-        assertThat(trailService.getTrail("JAVA")).isEmpty();
+        TrailDTO result = trailService.getTrail("JAVA");
+        assertThat(result.modules()).isEmpty();
     }
 }

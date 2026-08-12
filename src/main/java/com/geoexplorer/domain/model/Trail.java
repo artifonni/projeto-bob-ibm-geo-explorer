@@ -1,6 +1,9 @@
 package com.geoexplorer.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,21 +15,26 @@ public class Trail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String technology;
 
+    @NotBlank
     @Column(nullable = false)
     private String description;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Level level;
 
-    @OneToMany(mappedBy = "trail", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "trail", cascade = CascadeType.ALL, orphanRemoval = true,
+               fetch = FetchType.LAZY)
     @OrderBy("moduleOrder ASC")
     private List<Module> modules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "trail", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "trail", cascade = CascadeType.ALL, orphanRemoval = true,
+               fetch = FetchType.LAZY)
     private List<Challenge> challenges = new ArrayList<>();
 
     public Trail() {}

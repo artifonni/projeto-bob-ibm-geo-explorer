@@ -1,6 +1,8 @@
 package com.geoexplorer.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "modules")
@@ -10,15 +12,19 @@ public class Module {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     @Column(nullable = false)
     private String title;
 
+    @NotBlank
     @Column(nullable = false, length = 2000)
     private String content;
 
+    @NotNull
     @Column(name = "module_order", nullable = false)
     private Integer moduleOrder;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "trail_id", nullable = false)
     private Trail trail;

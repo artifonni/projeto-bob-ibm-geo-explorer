@@ -1,5 +1,6 @@
 package com.geoexplorer.service;
 
+import com.geoexplorer.domain.dto.ChallengeDTO;
 import com.geoexplorer.domain.model.Challenge;
 import com.geoexplorer.domain.model.Level;
 import com.geoexplorer.domain.model.Trail;
@@ -40,7 +41,7 @@ class ChallengeServiceTest {
     }
 
     @Test
-    void getChallenge_deveRetornarDesafio_quandoExistentes() {
+    void getChallenge_deveRetornarDTO_quandoExistentes() {
         Challenge ch = new Challenge("FizzBuzz", "Implemente FizzBuzz.", Level.BEGINNER, pythonTrail);
 
         when(trailRepository.findByTechnologyIgnoreCase("python"))
@@ -48,9 +49,10 @@ class ChallengeServiceTest {
         when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.BEGINNER))
                 .thenReturn(List.of(ch));
 
-        Challenge result = challengeService.getChallenge("python", "BEGINNER");
+        ChallengeDTO result = challengeService.getChallenge("python", "BEGINNER");
 
-        assertThat(result.getTitle()).isEqualTo("FizzBuzz");
+        assertThat(result.title()).isEqualTo("FizzBuzz");
+        assertThat(result.level()).isEqualTo(Level.BEGINNER);
     }
 
     @Test
@@ -62,9 +64,9 @@ class ChallengeServiceTest {
         when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.INTERMEDIATE))
                 .thenReturn(List.of(ch));
 
-        Challenge result = challengeService.getChallenge("python", "intermediate");
+        ChallengeDTO result = challengeService.getChallenge("python", "intermediate");
 
-        assertThat(result.getLevel()).isEqualTo(Level.INTERMEDIATE);
+        assertThat(result.level()).isEqualTo(Level.INTERMEDIATE);
     }
 
     @Test

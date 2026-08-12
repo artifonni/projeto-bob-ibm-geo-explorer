@@ -1,5 +1,6 @@
 package com.geoexplorer.service;
 
+import com.geoexplorer.domain.dto.ChallengeDTO;
 import com.geoexplorer.domain.model.Challenge;
 import com.geoexplorer.domain.model.Level;
 import com.geoexplorer.domain.model.Trail;
@@ -9,21 +10,21 @@ import com.geoexplorer.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class ChallengeService {
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private final TrailRepository trailRepository;
     private final ChallengeRepository challengeRepository;
-    private final Random random;
 
     public ChallengeService(TrailRepository trailRepository,
                             ChallengeRepository challengeRepository) {
         this.trailRepository = trailRepository;
         this.challengeRepository = challengeRepository;
-        this.random = new Random();
     }
 
     /**
@@ -31,12 +32,12 @@ public class ChallengeService {
      *
      * @param technology nome da tecnologia (ex.: "python")
      * @param level      nível do desafio: BEGINNER, INTERMEDIATE ou ADVANCED
-     * @return um {@link Challenge} selecionado aleatoriamente
+     * @return {@link ChallengeDTO} selecionado aleatoriamente via SecureRandom
      * @throws ResourceNotFoundException se a tecnologia não existir ou não houver
      *                                   desafios para o nível solicitado
      */
     @Transactional(readOnly = true)
-    public Challenge getChallenge(String technology, String level) {
+    public ChallengeDTO getChallenge(String technology, String level) {
         Level parsedLevel = parseLevel(level);
 
         Trail trail = trailRepository.findByTechnologyIgnoreCase(technology)
@@ -51,7 +52,8 @@ public class ChallengeService {
                     + "' no nível '" + level + "'.");
         }
 
-        return candidates.get(random.nextInt(candidates.size()));
+        Challenge ch = candidates.get(SECURE_RANDOM.nextInt(candidates.size()));
+        return new ChallengeDTO(ch.getTitle(), ch.getDescription(), ch.getLevel());
     }
 
     // -------------------------------------------------------------------------

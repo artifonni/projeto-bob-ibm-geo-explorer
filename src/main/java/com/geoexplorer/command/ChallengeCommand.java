@@ -1,6 +1,6 @@
 package com.geoexplorer.command;
 
-import com.geoexplorer.domain.model.Challenge;
+import com.geoexplorer.domain.dto.ChallengeDTO;
 import com.geoexplorer.exception.ResourceNotFoundException;
 import com.geoexplorer.service.ChallengeService;
 import org.springframework.context.annotation.Profile;
@@ -27,13 +27,13 @@ public class ChallengeCommand {
             String level) {
 
         try {
-            Challenge ch = challengeService.getChallenge(technology, level);
+            ChallengeDTO ch = challengeService.getChallenge(technology, level);
 
-            return "\n🎯 Desafio: " + ch.getTitle() + "\n"
+            return "\n🎯 Desafio: " + ch.title() + "\n"
                     + "─".repeat(56) + "\n"
                     + "Tecnologia : " + technology.toUpperCase() + "\n"
-                    + "Nível      : " + ch.getLevel() + "\n\n"
-                    + ch.getDescription() + "\n";
+                    + "Nível      : " + ch.level() + "\n\n"
+                    + ch.description() + "\n";
 
         } catch (ResourceNotFoundException e) {
             return "❌ " + e.getMessage()
