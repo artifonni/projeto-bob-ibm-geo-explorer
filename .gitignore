@@ -1,0 +1,159 @@
+# =============================================================================
+# .gitignore — Ecossistema Java
+# Regra de segurança: NUNCA versionar credenciais, senhas ou chaves de API.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# SEGURANÇA — credenciais e segredos (NUNCA versionar)
+# -----------------------------------------------------------------------------
+*.env
+.env
+.env.*
+*.properties.local
+secrets.properties
+credentials.properties
+application-secret.properties
+application-local.properties
+**/src/main/resources/application-local.yml
+**/src/main/resources/application-local.yaml
+*secret*
+*credential*
+*password*
+*.pem
+*.p12
+*.jks
+*.keystore
+*.truststore
+vault.properties
+aws.properties
+gcp.properties
+azure.properties
+
+# -----------------------------------------------------------------------------
+# Arquivos compilados Java
+# -----------------------------------------------------------------------------
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# -----------------------------------------------------------------------------
+# Maven
+# -----------------------------------------------------------------------------
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# -----------------------------------------------------------------------------
+# Gradle
+# -----------------------------------------------------------------------------
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+gradle/wrapper/gradle-wrapper.jar
+
+# -----------------------------------------------------------------------------
+# IDEs — IntelliJ IDEA
+# -----------------------------------------------------------------------------
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.idea_modules/
+
+# -----------------------------------------------------------------------------
+# IDEs — Eclipse
+# -----------------------------------------------------------------------------
+.classpath
+.project
+.settings/
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# -----------------------------------------------------------------------------
+# IDEs — NetBeans
+# -----------------------------------------------------------------------------
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# -----------------------------------------------------------------------------
+# IDEs — Visual Studio Code (Java Extension Pack)
+# -----------------------------------------------------------------------------
+.vscode/
+.factorypath
+
+# -----------------------------------------------------------------------------
+# Spring Boot
+# -----------------------------------------------------------------------------
+spring-shell.log
+
+# -----------------------------------------------------------------------------
+# Logs e arquivos de diagnóstico
+# -----------------------------------------------------------------------------
+logs/
+*.log
+*.log.*
+log/
+hs_err_pid*
+replay_pid*
+
+# -----------------------------------------------------------------------------
+# Arquivos temporários e de SO
+# -----------------------------------------------------------------------------
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------------------------------------------------------------------
+# Docker (se usado junto ao projeto Java)
+# -----------------------------------------------------------------------------
+.docker/
+docker-compose.override.yml
+
+# -----------------------------------------------------------------------------
+# Relatórios de testes e cobertura
+# -----------------------------------------------------------------------------
+surefire-reports/
+failsafe-reports/
+jacoco.exec
+/coverage/
+
+# -----------------------------------------------------------------------------
+# JRebel
+# -----------------------------------------------------------------------------
+rebel.xml
+rebel-remote.xml
+.rebel/
+
+# -----------------------------------------------------------------------------
+# SonarQube
+# -----------------------------------------------------------------------------
+.sonar/
+sonar-project.properties.local
+
+# -----------------------------------------------------------------------------
+# Checkstyle / PMD / SpotBugs (artefatos gerados)
+# -----------------------------------------------------------------------------
+checkstyle-result.xml
+pmd.xml
+spotbugs*.xml
