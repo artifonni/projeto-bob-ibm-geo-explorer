@@ -1,0 +1,35 @@
+<configuration>
+
+    <!--
+        Profile padrão (cli ou nenhum): logs no stdout como de costume.
+    -->
+    <springProfile name="!mcp">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!--
+        Profile mcp: TODOS os logs vão para System.err.
+        O stdout deve conter APENAS pacotes JSON-RPC (protocolo MCP).
+        Qualquer texto no stdout — inclusive o banner do Spring — quebra
+        o parser do cliente MCP (Claude Desktop, IBM Bob etc.).
+    -->
+    <springProfile name="mcp">
+        <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+            <target>System.err</target>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="STDERR"/>
+        </root>
+    </springProfile>
+
+</configuration>

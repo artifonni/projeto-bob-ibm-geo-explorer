@@ -1,0 +1,34 @@
+# =============================================================================
+# Profile MCP — Transport STDIO
+# CRÍTICO: qualquer saída não-JSON no stdout quebra o cliente MCP.
+# Este arquivo garante que stdout fique 100% limpo para o canal JSON-RPC.
+# =============================================================================
+
+spring:
+  main:
+    # Não sobe Tomcat — STDIO não precisa de servidor HTTP
+    web-application-type: none
+    # Desliga o banner ASCII do Spring que iria para stdout
+    banner-mode: off
+  shell:
+    interactive:
+      # Spring Shell desligado — System.in/System.out pertencem ao MCP
+      enabled: false
+
+logging:
+  level:
+    root: INFO
+  # O padrão abaixo é irrelevante no profile mcp pois o logback-spring.xml
+  # redireciona todo output do ConsoleAppender para System.err
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+
+spring:
+  ai:
+    mcp:
+      server:
+        enabled: true
+        name: geo-explorer-mcp
+        version: "1.0.0"
+        # type: SYNC é o padrão — não é necessário declarar explicitamente
+        # transport STDIO é ativado por StdioServerTransportProvider (bean padrão)
