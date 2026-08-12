@@ -102,6 +102,24 @@ geo-explorer:>
 
 Use `help` para listar os comandos disponíveis.
 
+### Acessando o Banco de Dados H2
+
+O Geo-Explorer usa um banco **H2 em memória** chamado `geoexplorer`. O H2 Console
+preenche o campo **JDBC URL** com `jdbc:h2:~/test` por padrão, o que causa erro de
+conexão. Para acessar os dados do seed siga estes passos:
+
+1. Com o profile `cli` rodando, abra `http://localhost:8080/h2-console` no navegador.
+2. No campo **JDBC URL**, apague o texto padrão e cole exatamente:
+   `jdbc:h2:mem:geoexplorer`
+3. Deixe o campo **User Name** como `sa` e a **Password** em **branco**.
+4. Clique em **Connect**.
+
+A partir daí você pode inspecionar as tabelas `TRAILS`, `MODULES` e `CHALLENGES`,
+populadas pelo `DataInitializer` a partir do `trails-seed.json`.
+
+> **Observação:** por ser em memória, os dados existem apenas enquanto o processo
+> estiver de pé e são recriados a cada inicialização.
+
 ---
 
 ## Executar no Profile MCP
