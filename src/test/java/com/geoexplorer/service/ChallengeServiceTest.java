@@ -91,9 +91,6 @@ class ChallengeServiceTest {
 
     @Test
     void getChallenge_deveLancarException_quandoNivelInvalido() {
-        when(trailRepository.findByTechnologyIgnoreCase("python"))
-                .thenReturn(Optional.of(pythonTrail));
-
         assertThatThrownBy(() -> challengeService.getChallenge("python", "EXPERT"))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("EXPERT");
