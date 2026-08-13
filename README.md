@@ -115,7 +115,7 @@ conexão. Para acessar os dados do seed siga estes passos:
 4. Clique em **Connect**.
 
 A partir daí você pode inspecionar as tabelas `TRAILS`, `MODULES` e `CHALLENGES`,
-populadas pelo `DataInitializer` a partir do `trails-seed.json`.
+populadas pela migração Flyway `V1__init_schema_and_data.sql`, que também cria o schema.
 
 > **Observação:** por ser em memória, os dados existem apenas enquanto o processo
 > estiver de pé e são recriados a cada inicialização.
@@ -155,7 +155,7 @@ geo-explorer:> trail --technology javascript
 
 ```
 📚 Trilha de JAVA
-────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────
 1. Introdução ao Java
    Conheça a história do Java, a JVM e escreva seu primeiro programa Hello World...
 
@@ -182,7 +182,7 @@ O parâmetro `--level` aceita: `BEGINNER`, `INTERMEDIATE`, `ADVANCED` (default: 
 
 ```
 🎯 Desafio: FizzBuzz Clássico
-────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────
 Tecnologia : JAVA
 Nível      : BEGINNER
 
@@ -201,21 +201,24 @@ geo-explorer:> certificate --technology python --user "Carlos Silva"
 **Saída esperada:**
 
 ```
-╔══════════════════════════════════════════════════════════╗
-║               GEO-EXPLORER — CERTIFICADO                ║
-╠══════════════════════════════════════════════════════════╣
-║                                                          ║
-║  Certificamos que                                        ║
-║                                                          ║
-║    Ana Lima                                              ║
-║                                                          ║
-║  concluiu com êxito a trilha de estudos:                ║
-║                                                          ║
-║    Javascript — Nível: BEGINNER                          ║
-║                                                          ║
-║  Data de emissão: 10/07/2025                             ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════╗
+║                  GEO-EXPLORER — CERTIFICADO                  ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║  Certificamos que                                            ║
+║                                                              ║
+║    Ana Lima                                                  ║
+║                                                              ║
+║  concluiu com êxito a trilha de estudos:                     ║
+║                                                              ║
+║    Javascript — Nível: BEGINNER                              ║
+║                                                              ║
+║  Descrição: Trilha de JavaScript moderno (ES2020+), focada em║
+║    fundamentos e assincronicidade.                           ║
+║                                                              ║
+║  Data de emissão: 12/08/2026                                 ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
 ```
 
 ---
@@ -291,20 +294,26 @@ geo-explorer/
     │   │   │   ├── TrailCommand.java
     │   │   │   ├── ChallengeCommand.java
     │   │   │   └── CertificateCommand.java
-    │   │   ├── config/
-    │   │   │   └── DataInitializer.java         # Seed do banco H2
     │   │   ├── domain/
     │   │   │   ├── model/
     │   │   │   │   ├── Level.java               # Enum: BEGINNER, INTERMEDIATE, ADVANCED
     │   │   │   │   ├── Trail.java
     │   │   │   │   ├── Module.java
     │   │   │   │   └── Challenge.java
-    │   │   │   └── repository/
-    │   │   │       ├── TrailRepository.java
-    │   │   │       ├── ModuleRepository.java
-    │   │   │       └── ChallengeRepository.java
+    │   │   │   ├── repository/
+    │   │   │   │   ├── TrailRepository.java
+    │   │   │   │   └── ChallengeRepository.java
+    │   │   │   └── dto/                         # Records de saída
+    │   │   │       ├── TrailDTO.java
+    │   │   │       ├── ModuleDTO.java
+    │   │   │       └── ChallengeDTO.java
     │   │   ├── exception/
-    │   │   │   └── ResourceNotFoundException.java
+    │   │   │   ├── GeoExplorerException.java    # Classe base
+    │   │   │   ├── ResourceNotFoundException.java
+    │   │   │   ├── InvalidInputException.java
+    │   │   │   └── InvalidLevelException.java
+    │   │   ├── common/
+    │   │   │   └── AppConstants.java            # Constantes compartilhadas
     │   │   ├── mcp/                             # @Profile("mcp") — Servidor MCP STDIO
     │   │   │   ├── GeoExplorerTools.java        # Métodos @Tool
     │   │   │   └── McpToolsConfig.java          # Registra ToolCallbackProvider
@@ -317,31 +326,41 @@ geo-explorer/
     │       ├── application-cli.yml              # Profile cli
     │       ├── application-mcp.yml              # Profile mcp
     │       ├── logback-spring.xml               # Logs → stderr no profile mcp
-    │       └── data/
-    │           └── trails-seed.json             # 3 tecnologias × 3 módulos × 3 desafios
+    │       └── db/migration/
+    │           └── V1__init_schema_and_data.sql # Schema + seed (3 tecnologias × 3 módulos × 3 desafios)
     └── test/
         └── java/com/geoexplorer/
             ├── command/                         # Testes de integração (@ActiveProfiles("cli"))
             ├── mcp/                             # Teste de fumaça (@ActiveProfiles("mcp"))
-            └── service/                         # Testes unitários (Mockito)
+            ├── service/                         # Testes unitários (Mockito)
+            └── domain/                          # Entidades + repositórios (@DataJpaTest)
 ```
 
 ---
 
 ## Testes
 
+A suíte tem **58 testes** (unitários, de persistência e de integração) com cobertura
+atual de **Line ≈ 93%, Branch ≈ 90%, Method ≈ 90%**.
+
 ```zsh
 # Todos os testes
 mvn test
 
-# Apenas testes unitários dos serviços
-mvn test -Dtest="TrailServiceTest,ChallengeServiceTest,CertificateServiceTest"
+# Apenas testes unitários de services e tools MCP
+mvn test -Dtest="TrailServiceTest,ChallengeServiceTest,CertificateServiceTest,GeoExplorerToolsTest"
+
+# Testes de persistência (@DataJpaTest + Flyway) e de entidades
+mvn test -Dtest="TrailRepositoryTest,EntityModelTest"
 
 # Testes de integração do profile cli
 mvn test -Dtest="TrailCommandTest,ChallengeCommandTest,CertificateCommandTest"
 
 # Teste de fumaça do profile mcp
 mvn test -Dtest="McpToolsConfigTest"
+
+# Build completo com gate de cobertura (LINE ≥ 90%, BRANCH ≥ 80%, METHOD ≥ 85%)
+mvn clean verify
 ```
 
 ---

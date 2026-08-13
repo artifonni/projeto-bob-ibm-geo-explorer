@@ -1,5 +1,24 @@
 # Geo-Explorer — Plano de Backend Spring Boot
 
+> **Nota de atualização (implementação final):** este documento é o plano original e
+> permanece como referência de design. A implementação final contém os seguintes desvios:
+>
+> - **Seed do banco:** em vez de `config/DataInitializer.java` + `data/trails-seed.json`,
+>   o schema e o seed foram movidos para a migração Flyway
+>   `db/migration/V1__init_schema_and_data.sql` (3 tecnologias × 3 módulos × 3 desafios).
+> - **Repositórios:** `ModuleRepository` não existe. As buscas usam `TrailRepository`
+>   (com `@Query` + `JOIN FETCH` para módulos) e `ChallengeRepository` (com `@Query` JPQL
+>   para sorteio de desafio por tecnologia e nível).
+> - **Estrutura:** houve a adição dos pacotes `exception` (hierarquia a partir de
+>   `GeoExplorerException`), `dto` (records `TrailDTO`, `ModuleDTO`, `ChallengeDTO`) e
+>   `common` (`AppConstants`).
+> - **Certificado:** a saída do `certificate` foi corrigida para uma caixa de largura
+>   fixa (64 caracteres), com quebra de linha segura e descrição incluída.
+> - **Testes:** a suíte final tem **58 testes** (unitários, de persistência `@DataJpaTest`
+>   e de integração `cli`/`mcp`), com gate de cobertura JaCoCo no `mvn verify`
+>   (LINE ≥ 90%, BRANCH ≥ 80%, METHOD ≥ 85%). Ver `README.md` para detalhes atuais.
+
+
 ## Visão Geral
 
 Construir um projeto Spring Boot (Java 21 / Spring Boot 3.3.x / Maven) que expõe três
