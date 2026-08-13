@@ -4,10 +4,12 @@ import com.geoexplorer.domain.dto.ModuleDTO;
 import com.geoexplorer.domain.dto.TrailDTO;
 import com.geoexplorer.domain.model.Trail;
 import com.geoexplorer.domain.repository.TrailRepository;
+import com.geoexplorer.exception.InvalidInputException;
 import com.geoexplorer.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -24,16 +26,21 @@ public class TrailService {
      *
      * @param technology nome da tecnologia (ex.: "java", "python")
      * @return {@link TrailDTO} com lista de módulos ordenada por moduleOrder
+     * @throws InvalidInputException     se a tecnologia não for informada
      * @throws ResourceNotFoundException se a tecnologia não existir no banco
      */
     @Transactional(readOnly = true)
     public TrailDTO getTrail(String technology) {
-        Trail trail = trailRepository.findByTechnologyIgnoreCase(technology)
+        if (isBlank(technology)) {
+            throw new InvalidInputException("Tecnologia não informada.");
+        }
+
+        Trail trail = trailRepository.findByTechnologyIgnoreCaseWithModules(technology)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Trilha não encontrada para a tecnologia: " + technology));
 
         List<ModuleDTO> moduleDTOs = trail.getModules().stream()
-                .sorted(java.util.Comparator.comparingInt(m -> m.getModuleOrder()))
+                .sorted(Comparator.comparingInt(m -> m.getModuleOrder()))
                 .map(m -> new ModuleDTO(m.getModuleOrder(), m.getTitle(), m.getContent()))
                 .toList();
 
@@ -43,5 +50,9 @@ public class TrailService {
                 trail.getLevel(),
                 moduleDTOs
         );
+    }
+
+    private boolean isBlank(String text) {
+        return text == null || text.isBlank();
     }
 }

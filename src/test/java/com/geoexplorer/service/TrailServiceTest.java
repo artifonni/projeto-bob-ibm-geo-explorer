@@ -6,6 +6,7 @@ import com.geoexplorer.domain.model.Level;
 import com.geoexplorer.domain.model.Module;
 import com.geoexplorer.domain.model.Trail;
 import com.geoexplorer.domain.repository.TrailRepository;
+import com.geoexplorer.exception.InvalidInputException;
 import com.geoexplorer.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,14 +36,15 @@ class TrailServiceTest {
     @BeforeEach
     void setUp() {
         javaTrail = new Trail("java", "Trilha de Java", Level.BEGINNER);
-        Module m1 = new Module("Intro", "Conteúdo 1", 1, javaTrail);
-        Module m2 = new Module("OO", "Conteúdo 2", 2, javaTrail);
-        javaTrail.getModules().addAll(List.of(m1, m2));
     }
 
     @Test
     void getTrail_deveRetornarDTOComModulosOrdenados_quandoTecnologiaExiste() {
-        when(trailRepository.findByTechnologyIgnoreCase("java"))
+        Module m1 = new Module("Intro", "Conteúdo 1", 1, javaTrail);
+        Module m2 = new Module("OO", "Conteúdo 2", 2, javaTrail);
+        javaTrail.getModules().addAll(List.of(m2, m1));
+
+        when(trailRepository.findByTechnologyIgnoreCaseWithModules("java"))
                 .thenReturn(Optional.of(javaTrail));
 
         TrailDTO result = trailService.getTrail("java");
@@ -56,7 +57,7 @@ class TrailServiceTest {
 
     @Test
     void getTrail_deveLancarResourceNotFoundException_quandoTecnologiaNaoExiste() {
-        when(trailRepository.findByTechnologyIgnoreCase("cobol"))
+        when(trailRepository.findByTechnologyIgnoreCaseWithModules("cobol"))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> trailService.getTrail("cobol"))
@@ -67,10 +68,30 @@ class TrailServiceTest {
     @Test
     void getTrail_deveRetornarListaVazia_quandoSemModulos() {
         Trail emptyTrail = new Trail("JAVA", "desc", Level.BEGINNER);
-        when(trailRepository.findByTechnologyIgnoreCase("JAVA"))
+        when(trailRepository.findByTechnologyIgnoreCaseWithModules("JAVA"))
                 .thenReturn(Optional.of(emptyTrail));
 
         TrailDTO result = trailService.getTrail("JAVA");
         assertThat(result.modules()).isEmpty();
+    }
+
+    @Test
+    void getTrail_deveLancarInvalidInputException_quandoTecnologiaNaoInformada() {
+        assertThatThrownBy(() -> trailService.getTrail(null))
+                .isInstanceOf(InvalidInputException.class)
+                .hasMessageContaining("Tecnologia");
+        assertThatThrownBy(() -> trailService.getTrail("   "))
+                .isInstanceOf(InvalidInputException.class);
+    }
+
+    @Test
+    void getTrail_deveRetornarDTOComDadosDaTrilha() {
+        when(trailRepository.findByTechnologyIgnoreCaseWithModules("python"))
+                .thenReturn(Optional.of(javaTrail));
+
+        TrailDTO result = trailService.getTrail("python");
+
+        assertThat(result.description()).isEqualTo("Trilha de Java");
+        assertThat(result.level()).isEqualTo(Level.BEGINNER);
     }
 }

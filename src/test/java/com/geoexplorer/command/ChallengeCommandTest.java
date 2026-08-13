@@ -24,8 +24,7 @@ class ChallengeCommandTest {
     }
 
     @Test
-    void challenge_deveRetornarDesafioComNivelDefault_quandoNaoInformado() {
-        // defaultValue = "BEGINNER" definido em @ShellOption
+    void challenge_deveRetornarDesafio_comNivelBeginnerExplicito() {
         String result = challengeCommand.challenge("python", "BEGINNER");
 
         assertThat(result).isNotEmpty();

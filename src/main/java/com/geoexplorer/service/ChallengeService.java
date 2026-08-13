@@ -6,12 +6,15 @@ import com.geoexplorer.domain.model.Level;
 import com.geoexplorer.domain.model.Trail;
 import com.geoexplorer.domain.repository.ChallengeRepository;
 import com.geoexplorer.domain.repository.TrailRepository;
+import com.geoexplorer.exception.InvalidInputException;
+import com.geoexplorer.exception.InvalidLevelException;
 import com.geoexplorer.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ChallengeService {
@@ -33,11 +36,17 @@ public class ChallengeService {
      * @param technology nome da tecnologia (ex.: "python")
      * @param level      nível do desafio: BEGINNER, INTERMEDIATE ou ADVANCED
      * @return {@link ChallengeDTO} selecionado aleatoriamente via SecureRandom
+     * @throws InvalidInputException    se a tecnologia não for informada
+     * @throws InvalidLevelException    se o nível não for informado ou for inválido
      * @throws ResourceNotFoundException se a tecnologia não existir ou não houver
      *                                   desafios para o nível solicitado
      */
     @Transactional(readOnly = true)
     public ChallengeDTO getChallenge(String technology, String level) {
+        if (isBlank(technology)) {
+            throw new InvalidInputException("Tecnologia não informada.");
+        }
+
         Level parsedLevel = parseLevel(level);
 
         Trail trail = trailRepository.findByTechnologyIgnoreCase(technology)
@@ -59,11 +68,19 @@ public class ChallengeService {
     // -------------------------------------------------------------------------
 
     private Level parseLevel(String level) {
+        if (isBlank(level)) {
+            throw new InvalidLevelException(
+                    "Nível não informado. Use BEGINNER, INTERMEDIATE ou ADVANCED.");
+        }
         try {
-            return Level.valueOf(level.toUpperCase());
+            return Level.valueOf(level.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            throw new ResourceNotFoundException(
+            throw new InvalidLevelException(
                     "Nível inválido: '" + level + "'. Use BEGINNER, INTERMEDIATE ou ADVANCED.");
         }
+    }
+
+    private boolean isBlank(String text) {
+        return text == null || text.isBlank();
     }
 }

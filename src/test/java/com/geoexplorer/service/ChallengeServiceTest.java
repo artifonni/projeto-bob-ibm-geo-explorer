@@ -6,6 +6,8 @@ import com.geoexplorer.domain.model.Level;
 import com.geoexplorer.domain.model.Trail;
 import com.geoexplorer.domain.repository.ChallengeRepository;
 import com.geoexplorer.domain.repository.TrailRepository;
+import com.geoexplorer.exception.InvalidInputException;
+import com.geoexplorer.exception.InvalidLevelException;
 import com.geoexplorer.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +72,35 @@ class ChallengeServiceTest {
     }
 
     @Test
+    void getChallenge_deveAceitarLevelComEspacos() {
+        Challenge ch = new Challenge("Decorador", "Implemente decorador.", Level.INTERMEDIATE, pythonTrail);
+
+        when(trailRepository.findByTechnologyIgnoreCase("python"))
+                .thenReturn(Optional.of(pythonTrail));
+        when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.INTERMEDIATE))
+                .thenReturn(List.of(ch));
+
+        ChallengeDTO result = challengeService.getChallenge("python", "  Intermediate  ");
+
+        assertThat(result.level()).isEqualTo(Level.INTERMEDIATE);
+    }
+
+    @Test
+    void getChallenge_deveRetornarDesafioDeQualquerCandidato_quandoExisteMaisDeUm() {
+        Challenge c1 = new Challenge("Desafio 1", "Desc 1", Level.BEGINNER, pythonTrail);
+        Challenge c2 = new Challenge("Desafio 2", "Desc 2", Level.BEGINNER, pythonTrail);
+
+        when(trailRepository.findByTechnologyIgnoreCase("python"))
+                .thenReturn(Optional.of(pythonTrail));
+        when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.BEGINNER))
+                .thenReturn(List.of(c1, c2));
+
+        ChallengeDTO result = challengeService.getChallenge("python", "BEGINNER");
+
+        assertThat(result.title()).isIn("Desafio 1", "Desafio 2");
+    }
+
+    @Test
     void getChallenge_deveLancarException_quandoTecnologiaNaoExiste() {
         when(trailRepository.findByTechnologyIgnoreCase("ruby"))
                 .thenReturn(Optional.empty());
@@ -92,9 +123,26 @@ class ChallengeServiceTest {
     }
 
     @Test
-    void getChallenge_deveLancarException_quandoNivelInvalido() {
+    void getChallenge_deveLancarInvalidLevelException_quandoNivelInvalido() {
         assertThatThrownBy(() -> challengeService.getChallenge("python", "EXPERT"))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(InvalidLevelException.class)
                 .hasMessageContaining("EXPERT");
+    }
+
+    @Test
+    void getChallenge_deveLancarInvalidLevelException_quandoNivelNaoInformado() {
+        assertThatThrownBy(() -> challengeService.getChallenge("python", null))
+                .isInstanceOf(InvalidLevelException.class);
+        assertThatThrownBy(() -> challengeService.getChallenge("python", "  "))
+                .isInstanceOf(InvalidLevelException.class);
+    }
+
+    @Test
+    void getChallenge_deveLancarInvalidInputException_quandoTecnologiaNaoInformada() {
+        assertThatThrownBy(() -> challengeService.getChallenge(null, "BEGINNER"))
+                .isInstanceOf(InvalidInputException.class)
+                .hasMessageContaining("Tecnologia");
+        assertThatThrownBy(() -> challengeService.getChallenge("   ", "BEGINNER"))
+                .isInstanceOf(InvalidInputException.class);
     }
 }
