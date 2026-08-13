@@ -1,5 +1,7 @@
 package com.geoexplorer.command;
 
+import com.geoexplorer.common.AppConstants;
+import com.geoexplorer.exception.GeoExplorerException;
 import com.geoexplorer.exception.ResourceNotFoundException;
 import com.geoexplorer.service.CertificateService;
 import org.springframework.context.annotation.Profile;
@@ -28,7 +30,9 @@ public class CertificateCommand {
             return "\n" + certificateService.generateCertificate(technology, user);
         } catch (ResourceNotFoundException e) {
             return "❌ " + e.getMessage()
-                    + "\n   Tecnologias disponíveis: java, python, javascript";
+                    + "\n   Tecnologias disponíveis: " + AppConstants.AVAILABLE_TECHNOLOGIES;
+        } catch (GeoExplorerException e) {
+            return "❌ " + e.getMessage();
         }
     }
 }

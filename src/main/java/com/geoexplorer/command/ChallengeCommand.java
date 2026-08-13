@@ -1,12 +1,14 @@
 package com.geoexplorer.command;
 
 import com.geoexplorer.domain.dto.ChallengeDTO;
-import com.geoexplorer.exception.ResourceNotFoundException;
+import com.geoexplorer.exception.GeoExplorerException;
 import com.geoexplorer.service.ChallengeService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+
+import java.util.Locale;
 
 @ShellComponent
 @Profile("cli")
@@ -31,13 +33,12 @@ public class ChallengeCommand {
 
             return "\n🎯 Desafio: " + ch.title() + "\n"
                     + "─".repeat(56) + "\n"
-                    + "Tecnologia : " + technology.toUpperCase() + "\n"
+                    + "Tecnologia : " + technology.toUpperCase(Locale.ROOT) + "\n"
                     + "Nível      : " + ch.level() + "\n\n"
                     + ch.description() + "\n";
 
-        } catch (ResourceNotFoundException e) {
-            return "❌ " + e.getMessage()
-                    + "\n   Níveis válidos: BEGINNER, INTERMEDIATE, ADVANCED";
+        } catch (GeoExplorerException e) {
+            return "❌ " + e.getMessage();
         }
     }
 }
