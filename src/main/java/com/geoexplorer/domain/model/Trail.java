@@ -30,7 +30,6 @@ public class Trail {
 
     @OneToMany(mappedBy = "trail", cascade = CascadeType.ALL, orphanRemoval = true,
                fetch = FetchType.LAZY)
-    @OrderBy("moduleOrder ASC")
     private List<Module> modules = new ArrayList<>();
 
     @OneToMany(mappedBy = "trail", cascade = CascadeType.ALL, orphanRemoval = true,
