@@ -207,4 +207,34 @@ class CertificateServiceTest {
         assertThat(lines).allSatisfy(line ->
                 assertThat(line).hasSize(expectedWidth));
     }
+
+    @Test
+    void generateCertificate_deveSuportarDescricaoVazia_semQuebrarCaixa() {
+        Trail trail = new Trail("java", "", Level.BEGINNER);
+        when(trailRepository.findByTechnologyIgnoreCase("java"))
+                .thenReturn(Optional.of(trail));
+
+        String cert = certificateService.generateCertificate("java", "Ana Lima");
+
+        List<String> lines = cert.lines().toList();
+        int expectedWidth = lines.get(0).length();
+        assertThat(cert).contains("Descrição:");
+        assertThat(lines).allSatisfy(line ->
+                assertThat(line).hasSize(expectedWidth));
+    }
+
+    @Test
+    void generateCertificate_deveQuebrarPalavraLongaDepoisDeTexto_naDescricao() {
+        String description = "Texto curto " + "PalavraMuitoLonga".repeat(6);
+        Trail trail = new Trail("java", description, Level.ADVANCED);
+        when(trailRepository.findByTechnologyIgnoreCase("java"))
+                .thenReturn(Optional.of(trail));
+
+        String cert = certificateService.generateCertificate("java", "Ana Lima");
+
+        List<String> lines = cert.lines().toList();
+        int expectedWidth = lines.get(0).length();
+        assertThat(lines).allSatisfy(line ->
+                assertThat(line).hasSize(expectedWidth));
+    }
 }
