@@ -101,6 +101,25 @@ class ChallengeServiceTest {
     }
 
     @Test
+    void getChallenge_deveRotacionar_semRepetirDesafioEmChamadasConsecutivas() {
+        Challenge c1 = new Challenge("Desafio 1", "Desc 1", Level.BEGINNER, pythonTrail);
+        Challenge c2 = new Challenge("Desafio 2", "Desc 2", Level.BEGINNER, pythonTrail);
+        Challenge c3 = new Challenge("Desafio 3", "Desc 3", Level.BEGINNER, pythonTrail);
+
+        when(trailRepository.findByTechnologyIgnoreCase("python"))
+                .thenReturn(Optional.of(pythonTrail));
+        when(challengeRepository.findByTrailAndLevel(pythonTrail, Level.BEGINNER))
+                .thenReturn(List.of(c1, c2, c3));
+
+        ChallengeDTO first  = challengeService.getChallenge("python", "BEGINNER");
+        ChallengeDTO second = challengeService.getChallenge("python", "BEGINNER");
+
+        assertThat(first.title()).isIn("Desafio 1", "Desafio 2", "Desafio 3");
+        assertThat(second.title()).isIn("Desafio 1", "Desafio 2", "Desafio 3");
+        assertThat(first.title()).isNotEqualTo(second.title());
+    }
+
+    @Test
     void getChallenge_deveLancarException_quandoTecnologiaNaoExiste() {
         when(trailRepository.findByTechnologyIgnoreCase("ruby"))
                 .thenReturn(Optional.empty());
