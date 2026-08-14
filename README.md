@@ -286,7 +286,38 @@ o profile `mcp`:
 geo-explorer/
 ├── pom.xml                                      # Maven — Spring Boot 3.3.13 + Spring AI BOM 1.0.0
 ├── geo-explorer-backend-plan.md                 # Plano de desenvolvimento
-└── src/
+├── frontend/                                     # Front-end React + Vite
+│   ├── index.html                                # Shell HTML (título + favicon)
+│   ├── package.json                              # Scripts: dev, build, lint
+│   ├── vite.config.ts                            # Vite + proxy /api → 8080
+│   ├── tsconfig.json                             # Referências do TypeScript
+│   ├── tsconfig.app.json                         # TS da aplicação (src/)
+│   ├── tsconfig.node.json                        # TS do Vite
+│   ├── .oxlintrc.json                            # Regras de lint
+│   ├── public/                                   # Arquivos estáticos
+│   │   ├── favicon.svg                           # Ícone da aba (globo esmeralda)
+│   │   └── icons.svg                             # Sprite de ícones sociais
+│   └── src/
+│       ├── main.tsx                              # Entry React + React Query
+│       ├── App.tsx                               # Rotas: /, /challenge, /certificate
+│       ├── index.css                             # Tema Tailwind (cores + fontes)
+│       ├── assets/                               # Imagens e SVGs
+│       ├── services/
+│       │   ├── api.ts                            # Cliente axios com interceptores
+│       │   └── geoExplorer.ts                    # Tipos DTO + chamadas à API
+│       ├── components/
+│       │   ├── ErrorBoundary.tsx                 # Fallback de erros de renderização
+│       │   ├── layout/
+│       │   │   └── AppLayout.tsx                 # Sidebar, bottom nav e rodapé
+│       │   └── ui/
+│       │       ├── Button.tsx                    # Botão com variants e loading
+│       │       ├── Card.tsx                      # Card reutilizável com hover
+│       │       └── Skeleton.tsx                  # Skeletons de carregamento
+│       └── pages/
+│           ├── Dashboard.tsx                     # Trilhas + modal de detalhes
+│           ├── Challenge.tsx                     # Gerador de desafio de código
+│           └── Certificate.tsx                   # Emissão de certificado
+├── src/
     ├── main/
     │   ├── java/com/geoexplorer/
     │   │   ├── GeoExplorerApplication.java      # Classe main
