@@ -2,6 +2,9 @@ package com.geoexplorer.domain.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class EntityModelTest {
@@ -21,6 +24,19 @@ class EntityModelTest {
     }
 
     @Test
+    void trail_deveSuportarDefinicaoDeModulosEDesafiosViaSetters() {
+        Trail trail = new Trail("java", "Trilha de Java", Level.BEGINNER);
+        List<Module> modules = new ArrayList<>();
+        List<Challenge> challenges = new ArrayList<>();
+
+        trail.setModules(modules);
+        trail.setChallenges(challenges);
+
+        assertThat(trail.getModules()).isSameAs(modules);
+        assertThat(trail.getChallenges()).isSameAs(challenges);
+    }
+
+    @Test
     void module_deveSuportarConstrucaoComBackReferenceParaTrail() {
         Trail trail = new Trail("java", "Trilha de Java", Level.BEGINNER);
         Module module = new Module("Fundamentos", "Sintaxe básica", 1, trail);
@@ -36,6 +52,9 @@ class EntityModelTest {
         assertThat(module.getTitle()).isEqualTo("Novo Título");
         assertThat(module.getContent()).isEqualTo("Novo conteúdo");
         assertThat(module.getModuleOrder()).isEqualTo(2);
+
+        module.setTrail(trail);
+        assertThat(module.getTrail()).isSameAs(trail);
     }
 
     @Test
@@ -54,11 +73,25 @@ class EntityModelTest {
         assertThat(challenge.getTitle()).isEqualTo("Novo Desafio");
         assertThat(challenge.getDescription()).isEqualTo("Nova descrição");
         assertThat(challenge.getLevel()).isEqualTo(Level.INTERMEDIATE);
+
+        challenge.setTrail(trail);
+        assertThat(challenge.getTrail()).isSameAs(trail);
     }
 
     @Test
     void level_deveConterOsTresNiveisEsperados() {
         assertThat(Level.values()).containsExactly(
                 Level.BEGINNER, Level.INTERMEDIATE, Level.ADVANCED);
+    }
+
+    @Test
+    void entidades_deveExporIdNullAntesDaPersistencia() {
+        Trail trail = new Trail();
+        Module module = new Module();
+        Challenge challenge = new Challenge();
+
+        assertThat(trail.getId()).isNull();
+        assertThat(module.getId()).isNull();
+        assertThat(challenge.getId()).isNull();
     }
 }
