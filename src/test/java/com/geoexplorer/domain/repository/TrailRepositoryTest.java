@@ -29,7 +29,7 @@ class TrailRepositoryTest {
     @Test
     void flywayMigration_devePopularSchemaESeed() {
         assertThat(trailRepository.count()).isEqualTo(3);
-        assertThat(challengeRepository.count()).isEqualTo(9);
+        assertThat(challengeRepository.count()).isEqualTo(27);
     }
 
     @Test
@@ -64,13 +64,13 @@ class TrailRepositoryTest {
         Trail trail = trailRepository.findByTechnologyIgnoreCase("java").orElseThrow();
 
         assertThat(challengeRepository.findByTrailAndLevel(trail, Level.BEGINNER))
-                .hasSize(1)
+                .hasSize(3)
                 .extracting(Challenge::getTitle)
-                .containsExactly("FizzBuzz Clássico");
+                .contains("FizzBuzz Clássico");
         assertThat(challengeRepository.findByTrailAndLevel(trail, Level.ADVANCED))
-                .hasSize(1)
+                .hasSize(3)
                 .extracting(Challenge::getTitle)
-                .containsExactly("Pilha Genérica com Generics");
+                .contains("Pilha Genérica com Generics");
     }
 
     @Test
