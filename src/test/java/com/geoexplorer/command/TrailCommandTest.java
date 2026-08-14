@@ -36,6 +36,14 @@ class TrailCommandTest {
     }
 
     @Test
+    void trail_deveRetornarMensagemDeErro_quandoTecnologiaNaoInformada() {
+        String result = trailCommand.trail("   ");
+
+        assertThat(result).contains("❌");
+        assertThat(result).contains("Tecnologia");
+    }
+
+    @Test
     void trail_deveRetornarModulosParaPython() {
         String result = trailCommand.trail("python");
 

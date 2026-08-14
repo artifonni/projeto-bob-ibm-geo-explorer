@@ -39,6 +39,14 @@ class CertificateCommandTest {
     }
 
     @Test
+    void certificate_deveRetornarMensagemDeErro_quandoTecnologiaNaoInformada() {
+        String result = certificateCommand.certificate("   ", "Maria");
+
+        assertThat(result).contains("❌");
+        assertThat(result).contains("Tecnologia");
+    }
+
+    @Test
     void certificate_deveConterNomeDaTecnologia() {
         String result = certificateCommand.certificate("javascript", "João");
 
