@@ -15,11 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class ChallengeService {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    /** Próximo índice por (tecnologia:nível) para rotacionar sem repetir. */
+    private final ConcurrentMap<String, AtomicInteger> nextIndexByKey = new ConcurrentHashMap<>();
 
     private final TrailRepository trailRepository;
     private final ChallengeRepository challengeRepository;
@@ -35,7 +41,8 @@ public class ChallengeService {
      *
      * @param technology nome da tecnologia (ex.: "python")
      * @param level      nível do desafio: BEGINNER, INTERMEDIATE ou ADVANCED
-     * @return {@link ChallengeDTO} selecionado aleatoriamente via SecureRandom
+     * @return {@link ChallengeDTO} selecionado de forma rotativa (sem repetir
+     *         o desafio em chamadas consecutivas)
      * @throws InvalidInputException    se a tecnologia não for informada
      * @throws InvalidLevelException    se o nível não for informado ou for inválido
      * @throws ResourceNotFoundException se a tecnologia não existir ou não houver
@@ -61,8 +68,25 @@ public class ChallengeService {
                     + "' no nível '" + level + "'.");
         }
 
-        Challenge ch = candidates.get(SECURE_RANDOM.nextInt(candidates.size()));
+        Challenge ch = pickChallenge(technology, parsedLevel, candidates);
         return new ChallengeDTO(ch.getTitle(), ch.getDescription(), ch.getLevel());
+    }
+
+    /**
+     * Seleciona o desafio de forma rotativa (round-robin) por tecnologia e nível,
+     * garantindo que chamadas consecutivas retornem desafios diferentes.
+     * O ponto de partida é aleatório para não ser previsível entre reinícios.
+     */
+    private Challenge pickChallenge(String technology, Level level, List<Challenge> candidates) {
+        if (candidates.size() == 1) {
+            return candidates.get(0);
+        }
+
+        String key = technology.trim().toLowerCase(Locale.ROOT) + ":" + level.name();
+        AtomicInteger nextIndex = nextIndexByKey.computeIfAbsent(
+                key, k -> new AtomicInteger(SECURE_RANDOM.nextInt(candidates.size())));
+
+        return candidates.get(nextIndex.getAndIncrement() % candidates.size());
     }
 
     // -------------------------------------------------------------------------
