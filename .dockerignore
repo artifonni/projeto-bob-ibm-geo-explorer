@@ -1,0 +1,27 @@
+# =============================================================================
+# .dockerignore — contexto do backend (Dockerfile + Dockerfile.tools)
+# Mantém o contexto pequeno e evita que segredos/artefatos entrem na imagem.
+# =============================================================================
+
+# Controle de versão
+.git
+
+# Java / Maven
+target/
+.mvn/
+
+# Node / frontend (usa o próprio contexto em frontend/)
+frontend/
+node_modules/
+
+# Segredos e ambiente
+.env
+.env.*
+
+# Logs e artefatos
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
