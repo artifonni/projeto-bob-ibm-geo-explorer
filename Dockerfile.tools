@@ -1,0 +1,15 @@
+# =============================================================================
+# Geo-Explorer — Ferramenta Maven (build/testes) via container
+#
+# Roda como o UID/GID do host (definidos no compose via .env) para que os
+# artefatos gerados em ./target não fiquem pertencentes a root. O cache de
+# dependências fica no volume m2_cache em /tmp/.m2 com permissão 1777 para
+# ser gravável por qualquer UID.
+# =============================================================================
+FROM maven:3.9-eclipse-temurin-21
+
+# Cache de dependências acessível a qualquer usuário (o container roda com o UID do host)
+RUN mkdir -p /tmp/.m2 && chmod 1777 /tmp/.m2
+
+ENTRYPOINT ["mvn"]
+CMD ["-v"]
