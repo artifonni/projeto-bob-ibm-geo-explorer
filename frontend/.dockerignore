@@ -1,0 +1,16 @@
+# =============================================================================
+# .dockerignore — contexto do frontend
+# Mantém o contexto pequeno e evita que node_modules/dist entrem na imagem.
+# =============================================================================
+
+node_modules
+dist
+.git
+
+# Segredos e ambiente
+.env
+.env.*
+
+# Logs e artefatos
+*.log
+npm-debug.log*
